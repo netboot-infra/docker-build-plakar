@@ -8,12 +8,20 @@ RUN addgroup --gid 1000 appgroup && \
 # Install Plakar Go binary
 RUN go install github.com/PlakarKorp/plakar@v1.0.5
 
-# Define persistent storage and expose the application port
-VOLUME /var/kloset
-EXPOSE 8080
-
 # Switch to the non-root user
 USER 1000:1000
 
-# Default command to run the application
-CMD ["/go/bin/plakar", "-no-agent", "at", "/var/kloset", "ui", "-addr", "0.0.0.0:8080", "-no-spawn", "-no-auth"]
+# Set environment variables
+ENV PLAKAR_REPOSITORY=/data
+ENV PLAKAR_PASSPHRASE=""
+
+# Expose the application port
+EXPOSE 8080
+
+# Health check to ensure the service is running
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/ || exit 1
+
+# Default command to start the UI
+# Users can override with custom arguments
+CMD ["/go/bin/plakar", "-no-agent", "ui", "-addr", "0.0.0.0:8080", "-no-spawn", "-no-auth"]
