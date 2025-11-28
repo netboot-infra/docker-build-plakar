@@ -1,5 +1,5 @@
 # Use the official Golang base image
-FROM golang:1.22
+FROM golang:1.24
 
 # Create a non-root user with UID/GID 1000
 RUN addgroup --gid 1000 appgroup && \
